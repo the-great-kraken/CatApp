@@ -38,7 +38,7 @@ class ProfilePage extends StatelessWidget {
                 onPressed: () => context.read<AppBloc>().add(
                   AppLogoutRequested(),
                 ),
-                child: const Text('LOG IN'),
+                child: const Text('LOG OUT'),
               ),
             ],
           ),
