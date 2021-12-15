@@ -1,6 +1,15 @@
-# cat_app
+# CAT APP #
 
-A new Flutter project.
+A simple Flutter app showing cat images from CatApi
+
+### USE ###
+
+* Bloc
+* REST API
+* StatefulWidget/StatelessWidget
+* HTTP
+* Route
+* Futures
 
 ## Getting Started
 
