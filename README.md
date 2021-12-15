@@ -2,7 +2,7 @@
 
 A simple Flutter app showing cat images from CatApi
 
-![Demo](https://github.com/the-great-kraken/CatApp/tree/main/assets/images/video_demo.gif)
+![Demo](assets/images/video_demo.gif)
 
 ### USE ###
 
