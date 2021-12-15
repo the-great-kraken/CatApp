@@ -49,6 +49,14 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+    
+    signingConfigs {
+    debug {
+        // Override the local debug keystore, so that
+        // all builds have consistent certificates
+        storeFile file('debug.keystore')
+        }
+    }
 }
 
 flutter {
