@@ -1,25 +1,21 @@
-import 'dart:async';
+import 'package:cat_app/models/like.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'event.dart';
+import 'likes_repository.dart';
+import 'state.dart';
 
-import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+class LikeBloc extends Bloc<AddLikeEvent, LikesState> {
+  LikeBloc({required this.likeRepository}) : super(LikesState());
 
-part 'event.dart';
-part 'state.dart';
-
-class LikeBloc extends Bloc<LikeEvent, LikesState> {
-  final Set<String> _likes = {};
-  LikeBloc() : super(Likes(likes: {}));
+  final LikesRepository likeRepository;
 
   @override
-  Stream<LikesState> mapEventToState(
-    LikeEvent event,
-  ) async* {
-    if (event is Like) {
-      _likes.add(event.id);
-      yield Likes(likes: _likes);
-    } else if (event is Dislike) {
-      _likes.remove(event.id);
-      yield Likes(likes: _likes);
+  Stream<LikesState> mapEventToState(LikeEvent event) async* {
+    if (event is AddLikeEvent) {
+      Like like = Like(event.id, event.url, DateTime.now());
+      await likeRepository.addLike(like);
+    } else if (event is DislikeEvent) {
+      await likeRepository.dislike(event.id);
     }
   }
 }

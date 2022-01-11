@@ -11,14 +11,9 @@ part 'state.dart';
 class CatFactsBloc extends Bloc<CatFactsEvent, CatFactsState> {
   CatFactsBloc() : super(CatFactsInitial());
 
-  @override
-  Stream<CatFactsState> mapEventToState(
-    CatFactsEvent event,
-  ) async* {
-    if (event is FactsLoaded) {
-      final facts = await loadFacts();
-      yield CatsFactsLoaded(facts: facts);
-    }
+  Stream<List<String>> getFacts() async* {
+    List<String> facts = await loadFacts();
+    yield facts;
   }
 }
 

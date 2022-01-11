@@ -1,10 +1,6 @@
-part of 'bloc.dart';
+import 'package:equatable/equatable.dart';
 
-@immutable
-abstract class LikesState {}
-
-class Likes extends LikesState {
-  final Set<String> likes;
-
-  Likes({required this.likes});
+class LikesState extends Equatable {
+  @override
+  List<Object> get props => [];
 }

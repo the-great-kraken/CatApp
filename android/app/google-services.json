@@ -38,6 +38,13 @@
             {
               "client_id": "45025912865-69kt41h9rlkrqup82olgv7s0e08egp6r.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "45025912865-i8niv2i5niej5uhhjpahedqlbo603vve.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.kraken.catapp"
+              }
             }
           ]
         }

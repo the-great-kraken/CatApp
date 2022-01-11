@@ -1,4 +1,6 @@
 import 'package:auth_repository/auth_repository.dart';
+import 'package:cat_app/bloc/cat_likes/bloc.dart';
+import 'package:cat_app/bloc/cat_likes/likes_repository.dart';
 import 'package:cat_app/screens/home/blocs/tab/tab_bloc.dart';
 import 'package:cat_app/screens/home/view/home_page.dart';
 import 'package:cat_app/screens/login/view/login_page.dart';
@@ -10,6 +12,7 @@ import 'bloc/auth/bloc.dart';
 import 'bloc/cat_facts/bloc.dart';
 import 'bloc/cat_images/bloc.dart';
 import 'bloc/cat_likes/bloc.dart';
+import 'common/check_internet.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,7 +41,9 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
                 BlocProvider<TabBloc>(create: (context) => TabBloc()),
-                BlocProvider<LikeBloc>(create: (context) => LikeBloc()),
+                BlocProvider<LikeBloc>(
+                    create: (context) =>
+                        LikeBloc(likeRepository: LikesRepository())),
                 BlocProvider<CatFactsBloc>(
                     create: (context) => CatFactsBloc()..add(FactsLoaded())),
               ],
@@ -53,18 +58,44 @@ class MyApp extends StatelessWidget {
                     home: Home(),
                   );
                 } else {
-                  return RepositoryProvider.value(
-                    value: authenticationRepository,
-                    child: BlocProvider(
-                      create: (_) => AppBloc(
-                        authenticationRepository: authenticationRepository,
-                      ),
-                      child: const MaterialApp(
-                        title: 'Cats App',
-                        home: LoginPage(),
-                      ),
-                    ),
-                  );
+                  return FutureBuilder(
+                      future: check(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          bool internet = snapshot.data as bool;
+                          if (internet) {
+                            return RepositoryProvider.value(
+                              value: authenticationRepository,
+                              child: BlocProvider(
+                                create: (_) => AppBloc(
+                                  authenticationRepository:
+                                      authenticationRepository,
+                                ),
+                                child: const MaterialApp(
+                                  title: 'Cats App',
+                                  home: LoginPage(),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return MaterialApp(
+                              home: Scaffold(
+                                body: Center(
+                                  child: Text('No internet connection!'),
+                                ),
+                              ),
+                            );
+                          }
+                        } else {
+                          return MaterialApp(
+                            home: Scaffold(
+                              body: Center(
+                                child: Text('No internet connection!'),
+                              ),
+                            ),
+                          );
+                        }
+                      });
                 }
               }),
             );

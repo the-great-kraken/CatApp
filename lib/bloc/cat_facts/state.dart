@@ -6,7 +6,7 @@ abstract class CatFactsState {}
 class CatFactsInitial extends CatFactsState {}
 
 class CatsFactsLoaded extends CatFactsState {
-  final List<String> facts;
+  final String facts;
 
-  CatsFactsLoaded({required this.facts});
+  CatsFactsLoaded({required this.facts}); 
 }

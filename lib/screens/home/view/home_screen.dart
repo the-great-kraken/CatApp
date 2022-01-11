@@ -1,6 +1,10 @@
+import 'package:cat_app/bloc/cat_likes/likes_repository.dart';
 import 'package:cat_app/common/cached_image.dart';
+import 'package:cat_app/models/like.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../../bloc/cat_likes/bloc.dart';
+import '../../../bloc/cat_likes/state.dart';
 import '/bloc/cat_likes/bloc.dart';
 import '/bloc/cat_images/bloc.dart';
 import 'package:lazy_load_scrollview/lazy_load_scrollview.dart';
@@ -13,8 +17,27 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        child: StreamBuilder(
+          stream: LikesRepository().fetchItems(),
+          builder: streamBuilder,
+        ),
+      ),
+    );
+  }
+
+  Widget streamBuilder(context, snapshot) {
+    if (!snapshot.hasData) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    List<Like> _list = snapshot.data as List<Like>;
+    var _idList = _list.map((like) => like.id);
+
     LikeBloc _likeBloc = BlocProvider.of<LikeBloc>(context);
     CatsBloc _catsBloc = BlocProvider.of<CatsBloc>(context);
+
     return BlocBuilder<CatsBloc, CatsState>(
         buildWhen: (previous, current) => previous != current,
         builder: (context, state) {
@@ -39,9 +62,12 @@ class HomePage extends StatelessWidget {
                             builder: (BuildContext context) {
                           return ImageScreen(
                             imgUrl: '${state.catsImages[index].url}',
-                            tag: 'dash${state.catsImages[index].id}',
+                            id: '${state.catsImages[index].id}',
+                            isLike: _idList.contains(
+                                            state.catsImages[index].id),
                           );
                         }));
+
                       },
                       child: Hero(
                         tag: 'dash${state.catsImages[index].id}',
@@ -73,35 +99,31 @@ class HomePage extends StatelessWidget {
                                     children: [
                                       BlocBuilder<LikeBloc, LikesState>(
                                           builder: (context, likeState) {
-                                        if (likeState is Likes) {
-                                          return FavoriteButton(
-                                            valueChanged: (isLiked) async {
-                                              if (likeState.likes.contains(state
-                                                  .catsImages[index].url)) {
-                                                _likeBloc.add(Dislike(
-                                                    id: state.catsImages[index]
-                                                        .url));
-                                                return true;
-                                              } else {
-                                                _likeBloc.add(Like(
-                                                    id: state.catsImages[index]
-                                                        .url));
-                                                return false;
-                                              }
-                                            },
-                                            iconSize: 40,
-                                            iconDisabledColor: Colors.white70,
-                                          );
-                                        } else {
-                                          return Center(
-                                            child: Text(
-                                              'Something went wrong...',
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                          );
-                                        }
+                                        bool res = _idList.contains(
+                                            state.catsImages[index].id);
+                                        return FavoriteButton(
+                                          valueChanged: (isLiked) async {
+                                            res = await LikesRepository()
+                                                .likeExist(
+                                                    state.catsImages[index].id);
+                                            if (res) {
+                                              _likeBloc.likeRepository.dislike(
+                                                state.catsImages[index].id,
+                                              );
+                                            } else {
+                                              print(isLiked);
+                                              _likeBloc.likeRepository
+                                                  .addLike(Like(
+                                                state.catsImages[index].id,
+                                                state.catsImages[index].url,
+                                                DateTime.now(),
+                                              ));
+                                            }
+                                          },
+                                          isFavorite: res,
+                                          iconSize: 40,
+                                          iconDisabledColor: Colors.white70,
+                                        );
                                       }),
                                     ],
                                   ),
@@ -115,15 +137,15 @@ class HomePage extends StatelessWidget {
                   }),
             );
           } else {
-            return Column(
-              children: [
-                const SizedBox(height: 100,),
-                Image.asset(
-              'assets/images/cat.gif',
-              alignment: Alignment.center,
-                ),
-              ]
-            );
+            return Column(children: [
+              const SizedBox(
+                height: 100,
+              ),
+              Image.asset(
+                'assets/images/cat.gif',
+                alignment: Alignment.center,
+              ),
+            ]);
           }
         });
   }
